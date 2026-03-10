@@ -82,7 +82,7 @@ export function NetworkPage() {
     highRiskOnly: false,
   })
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null)
-  const [selectedGraphNode, setSelectedGraphNode] = useState<{ id: string; x?: number; y?: number } | null>(null)
+  const [selectedGraphNode, setSelectedGraphNode] = useState<{ id?: string | number; x?: number; y?: number } | null>(null)
   const [hoverNodeId, setHoverNodeId] = useState<string | null>(null)
 
   const effectiveFocusId = useMemo(() => {
@@ -129,15 +129,19 @@ export function NetworkPage() {
   }, [hoverNodeId, selectedNode?.id, subgraph.edges])
 
   const nodeColor = useCallback(
-    (node: { id: string; color?: string }) => {
-      const active = highlightSet.nodes.size === 0 || highlightSet.nodes.has(node.id)
+    (node: { id?: string | number; color?: string }) => {
+      const id = node.id != null ? String(node.id) : ''
+      const active = highlightSet.nodes.size === 0 || highlightSet.nodes.has(id)
       return active ? (node.color ?? '#6b7280') : '#d1d5db'
     },
     [highlightSet.nodes]
   )
 
   const nodeOpacity = useCallback(
-    (node: { id: string }) => (highlightSet.nodes.size === 0 || highlightSet.nodes.has(node.id) ? 1 : 0.25),
+    (node: { id?: string | number }) => {
+      const id = node.id != null ? String(node.id) : ''
+      return highlightSet.nodes.size === 0 || highlightSet.nodes.has(id) ? 1 : 0.25
+    },
     [highlightSet.nodes]
   )
 
@@ -166,8 +170,8 @@ export function NetworkPage() {
   )
 
   const nodeCanvasObject = useCallback(
-    (node: { id: string; x?: number; y?: number; val?: number; color?: string; type?: string; label?: string }, ctx: CanvasRenderingContext2D, globalScale: number) => {
-      const label = (node.label?.length ?? 0) > 12 ? `${node.label.slice(0, 12)}…` : (node.label ?? node.id)
+    (node: { id?: string | number; x?: number; y?: number; val?: number; color?: string; type?: string; label?: string }, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      const label = (node.label?.length ?? 0) > 12 ? `${node.label.slice(0, 12)}…` : (node.label ?? String(node.id ?? ''))
       const r = Math.max(4, (node.val ?? 14) / (globalScale > 4 ? globalScale / 4 : 1))
       const opacity = nodeOpacity(node)
       ctx.globalAlpha = opacity
@@ -193,21 +197,22 @@ export function NetworkPage() {
     [nodeOpacity]
   )
 
-  const nodeLabel = useCallback((node: { id: string; type?: string; label?: string }) => {
-    return `${node.type ?? 'Node'}: ${node.label ?? node.id}`
+  const nodeLabel = useCallback((node: { id?: string | number; type?: string; label?: string }) => {
+    return `${node.type ?? 'Node'}: ${node.label ?? String(node.id ?? '')}`
   }, [])
 
   const onNodeClick = useCallback(
-    (node: { id: string; x?: number; y?: number }) => {
-      const graphNode = mockGraph.nodes.find((n) => n.id === node.id)
+    (node: { id?: string | number; x?: number; y?: number }) => {
+      const id = node.id != null ? String(node.id) : ''
+      const graphNode = mockGraph.nodes.find((n) => n.id === id)
       setSelectedNode(graphNode ?? null)
       setSelectedGraphNode(node)
     },
     []
   )
 
-  const onNodeHover = useCallback((node: { id: string } | null) => {
-    setHoverNodeId(node?.id ?? null)
+  const onNodeHover = useCallback((node: { id?: string | number } | null) => {
+    setHoverNodeId(node?.id != null ? String(node.id) : null)
   }, [])
 
   const centerOnNode = useCallback(() => {
@@ -484,17 +489,17 @@ export function NetworkPage() {
                   >
                     Centrar en nodo
                   </button>
-                  {selectedNode.type === 'User' && selectedNode.data?.userId && (
+                  {selectedNode.type === 'User' && typeof selectedNode.data?.userId === 'string' && (
                     <Link
-                      to={`${ROUTES.antifraude.proteccionCuentaUsuarios}/${selectedNode.data.userId as string}`}
+                      to={`${ROUTES.antifraude.proteccionCuentaUsuarios}/${selectedNode.data.userId}`}
                       className="rounded-lg bg-koin-header px-3 py-2 text-center text-sm font-medium text-white hover:bg-gray-800"
                     >
                       Ver usuario
                     </Link>
                   )}
-                  {selectedNode.type === 'Event' && selectedNode.data?.eventId && (
+                  {selectedNode.type === 'Event' && typeof selectedNode.data?.eventId === 'string' && (
                     <Link
-                      to={`${ROUTES.antifraude.proteccionCuentaEventos}/${selectedNode.data.eventId as string}`}
+                      to={`${ROUTES.antifraude.proteccionCuentaEventos}/${selectedNode.data.eventId}`}
                       className="rounded-lg bg-koin-header px-3 py-2 text-center text-sm font-medium text-white hover:bg-gray-800"
                     >
                       Ver evento

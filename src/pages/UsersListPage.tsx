@@ -7,7 +7,7 @@ import { SectionHeader } from '@/components/portal/SectionHeader'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { mockUsers } from '@/mocks'
 import { format } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 
 const QUICK_FILTERS = [
   { key: 'blocked', label: 'Bloqueados' },

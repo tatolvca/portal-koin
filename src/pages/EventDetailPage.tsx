@@ -5,7 +5,7 @@ import { SectionHeader } from '@/components/portal/SectionHeader'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { getEventById, getUserById, getEventsByUserId, mockEvents, mockUsers } from '@/mocks'
 import { format } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 import { Clock, User, GitBranch } from 'lucide-react'
 
 export function EventDetailPage() {

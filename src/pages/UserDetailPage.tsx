@@ -6,7 +6,7 @@ import { SectionHeader } from '@/components/portal/SectionHeader'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { getUserById, getEventsByUserId, mockUsers, mockEvents } from '@/mocks'
 import { format } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 
 const TABS = ['Resumen', 'Dispositivos', 'Auth', 'Eventos', 'Notas'] as const
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { format, parseISO } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 import { ROUTES } from '@/config/routes'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { Badge } from '@/components/portal/Badge'
@@ -267,7 +267,7 @@ export function OverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <YAxis type="category" dataKey="deviceId" width={100} tick={{ fontSize: 10, fill: '#6b7280' }} />
-                <Tooltip formatter={(v: number) => v} />
+                <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v : Number(v))} />
                 <Bar dataKey="eventCount" name="Eventos" fill={ACCENT.chart} radius={[0, 4, 4, 0]} />
                 <Bar dataKey="userCount" name="Usuarios" fill={ACCENT.chartSecondary} radius={[0, 4, 4, 0]} />
               </BarChart>

@@ -17,7 +17,7 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 import { format, parseISO } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 import { ROUTES } from '@/config/routes'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { MOCK_METRICS, METRICS_KPIS, METRICS_INSIGHTS } from '@/mocks'

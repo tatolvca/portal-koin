@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/portal/PageHeader'
 import { mockEvents, mockSavedViews } from '@/mocks'
 import type { AtoEvent } from '@/types/ato'
 import { format } from 'date-fns'
-import es from 'date-fns/locale/es'
+import { es } from 'date-fns/locale/es'
 
 const QUICK_FILTERS = [
   { key: 'high_risk', label: 'Alto riesgo' },
