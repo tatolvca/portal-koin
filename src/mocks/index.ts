@@ -1,5 +1,5 @@
 import { buildMockUsers, getUsersUnderWatch } from "./users";
-import { buildMockEvents, getHighRiskEvents } from "./events";
+import { buildMockEvents } from "./events";
 import { buildGraphFromEventsAndUsers } from "./graph";
 import type { AtoEvent, AtoUser, GraphData, DashboardKpis, InsightItem, TopReusedDevice, TopSignalCount } from "@/types/ato";
 import { MOCK_SIGNALS } from "./signals";

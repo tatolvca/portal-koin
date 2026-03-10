@@ -6,7 +6,6 @@ import { Badge } from '@/components/portal/Badge'
 import { SectionHeader } from '@/components/portal/SectionHeader'
 import { PageHeader } from '@/components/portal/PageHeader'
 import { mockEvents, mockSavedViews } from '@/mocks'
-import type { AtoEvent } from '@/types/ato'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale/es'
 

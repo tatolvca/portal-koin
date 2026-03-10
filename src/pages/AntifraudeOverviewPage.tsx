@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ROUTES } from '@/config/routes'
 import { PageHeader } from '@/components/portal/PageHeader'
-import { CreditCard, Shield, FileWarning, LayoutDashboard } from 'lucide-react'
+import { CreditCard, Shield, FileWarning } from 'lucide-react'
 
 const MODULES = [
   { label: 'Transacciones', href: ROUTES.antifraude.transacciones, description: 'Búsqueda y métricas de transacciones.', icon: CreditCard },

@@ -41,15 +41,7 @@ const TAB_PALETTE: Record<TabId, { primary: string; light: string; chart: string
   Red: { primary: '#7e22ce', light: '#faf5ff', chart: '#a855f7', chartSecondary: '#06b6d4' },
 }
 
-function KpiCard({
-  kpi,
-  accentColor,
-  lightBg,
-}: {
-  kpi: KpiCardData
-  accentColor: string
-  lightBg: string
-}) {
+function KpiCard({ kpi, accentColor }: { kpi: KpiCardData; accentColor: string }) {
   const maxSpark = Math.max(...kpi.sparkline, 1)
   const sparkPath = kpi.sparkline
     .map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i / Math.max(kpi.sparkline.length - 1, 1)) * 100} ${100 - (v / maxSpark) * 80}`)
@@ -129,13 +121,21 @@ function InsightsPanel({
   )
 }
 
-function ChartTooltipContent({ label, payload, formatter }: { label?: string; payload?: { value: number }[]; formatter?: (v: number) => string }) {
+function ChartTooltipContent({
+  label,
+  payload,
+  formatter,
+}: {
+  label?: string | number
+  payload?: readonly { value?: unknown }[]
+  formatter?: (v: unknown) => string
+}) {
   if (!payload?.length) return null
   const v = payload[0]?.value
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg">
-      {label && <p className="text-xs text-gray-500">{label}</p>}
-      <p className="font-semibold text-gray-900">{formatter ? formatter(v) : v}</p>
+      {label != null && <p className="text-xs text-gray-500">{String(label)}</p>}
+      <p className="font-semibold text-gray-900">{formatter ? formatter(v) : String(v ?? '')}</p>
     </div>
   )
 }
@@ -220,7 +220,7 @@ export function MetricsPage() {
         {/* Fila 1: KPI cards */}
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {kpis.map((kpi) => (
-            <KpiCard key={kpi.label} kpi={kpi} accentColor={palette.primary} lightBg={palette.light} />
+            <KpiCard key={kpi.label} kpi={kpi} accentColor={palette.primary} />
           ))}
         </section>
 
@@ -312,7 +312,7 @@ export function MetricsPage() {
                       <Tooltip
                         content={({ payload, label }) => (
                           <ChartTooltipContent
-                            label={label ? format(parseISO(label), 'd MMM', { locale: es }) : undefined}
+                            label={label != null ? format(parseISO(String(label)), 'd MMM', { locale: es }) : undefined}
                             payload={payload}
                             formatter={(v) => `${v}%`}
                           />
@@ -428,7 +428,7 @@ export function MetricsPage() {
                     <BarChart data={MOCK_METRICS.attack.eventTypeBreakdown} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
                       <XAxis type="number" tick={{ fontSize: 11 }} />
                       <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 11 }} />
-                      <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                      <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v.toLocaleString() : String(v ?? ''))} />
                       <Bar dataKey="value" radius={[0, 4, 4, 0]} fill="#8b5cf6" name="Eventos" />
                     </BarChart>
                   </ResponsiveContainer>
@@ -550,7 +550,7 @@ export function MetricsPage() {
                           <Cell key={i} fill={entry.fill} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                      <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v.toLocaleString() : String(v ?? ''))} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
