@@ -385,7 +385,7 @@ export function NetworkPage() {
         <div className="min-h-[560px] flex-1 overflow-hidden rounded-untitled-xl border border-gray-200 bg-white shadow-untitled-sm">
           <Suspense fallback={<div className="flex min-h-[560px] items-center justify-center text-gray-500">Cargando grafo…</div>}>
             <ForceGraph2D
-              ref={fgRef as unknown as React.MutableRefObject<{ centerAt: (x: number, y: number, t: number) => void } | undefined>}
+              ref={fgRef as never}
               graphData={graphData}
               nodeVal={((n: { val?: number }) => n?.val ?? 14) as (n: unknown) => number}
               nodeColor={nodeColor}
