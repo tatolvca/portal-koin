@@ -2,10 +2,10 @@ import { Link, useLocation } from 'react-router-dom'
 import { Bell, Settings, ChevronDown, Globe, DollarSign, Clock, CreditCard, Shield, FileWarning, Wallet, LayoutDashboard } from 'lucide-react'
 import { ROUTES } from '@/config/routes'
 
-const PRODUCTS = [
+const PRODUCTS: Array<{ id: string; label: string; href: string; icon: typeof Wallet; disabled?: boolean }> = [
   { id: 'pagos', label: 'Pagos', href: '#', disabled: true, icon: Wallet },
   { id: 'antifraude', label: 'Antifraude', href: ROUTES.antifraude.overview, icon: Shield },
-] as const
+]
 
 /** Nivel 2: Overview (global), Transacciones, Protección de Cuenta, Contracargos */
 const SUBMODULES = [

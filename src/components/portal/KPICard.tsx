@@ -10,7 +10,6 @@ interface KPICardProps {
 
 export function KPICard({ title, value, delta, deltaLabel, subtitle }: KPICardProps) {
   const positive = delta != null && delta >= 0
-  const negative = delta != null && delta < 0
   return (
     <div className="rounded-untitled-xl border border-gray-200 bg-white p-4 shadow-untitled-sm">
       <p className="text-sm font-medium text-gray-500">{title}</p>
