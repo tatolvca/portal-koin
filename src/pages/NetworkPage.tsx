@@ -145,15 +145,17 @@ export function NetworkPage() {
     [highlightSet.nodes]
   )
 
-  const getLinkId = useCallback((link: { id?: string; source?: { id?: string }; target?: { id?: string } }) => {
-    if (link.id) return link.id
-    const s = typeof link.source === 'object' && link.source ? (link.source as { id?: string }).id : link.source
-    const t = typeof link.target === 'object' && link.target ? (link.target as { id?: string }).id : link.target
+  const getLinkId = useCallback((link: { id?: string; source?: unknown; target?: unknown }): string => {
+    if (link.id) return String(link.id)
+    const src = link.source
+    const tgt = link.target
+    const s = typeof src === 'object' && src !== null && 'id' in src ? String((src as { id: unknown }).id) : String(src ?? '')
+    const t = typeof tgt === 'object' && tgt !== null && 'id' in tgt ? String((tgt as { id: unknown }).id) : String(tgt ?? '')
     return `${s}-${t}`
   }, [])
 
   const linkColor = useCallback(
-    (link: { id?: string; source?: { id?: string }; target?: { id?: string } }) => {
+    (link: { id?: string; source?: unknown; target?: unknown }) => {
       const lid = getLinkId(link)
       const active = highlightSet.links.size === 0 || highlightSet.links.has(lid)
       return active ? 'rgba(100,116,139,0.7)' : 'rgba(200,200,200,0.2)'
@@ -162,7 +164,7 @@ export function NetworkPage() {
   )
 
   const linkWidth = useCallback(
-    (link: { id?: string; source?: { id?: string }; target?: { id?: string } }) => {
+    (link: { id?: string; source?: unknown; target?: unknown }) => {
       const lid = getLinkId(link)
       return highlightSet.links.size === 0 || highlightSet.links.has(lid) ? 1.5 : 0.5
     },
@@ -382,14 +384,14 @@ export function NetworkPage() {
         <div className="min-h-[560px] flex-1 overflow-hidden rounded-untitled-xl border border-gray-200 bg-white shadow-untitled-sm">
           <Suspense fallback={<div className="flex min-h-[560px] items-center justify-center text-gray-500">Cargando grafo…</div>}>
             <ForceGraph2D
-              ref={fgRef}
+              ref={fgRef as React.RefObject<unknown>}
               graphData={graphData}
-              nodeVal={(n: { val?: number }) => n.val ?? 14}
+              nodeVal={((n: { val?: number }) => n?.val ?? 14) as (n: unknown) => number}
               nodeColor={nodeColor}
               nodeCanvasObject={nodeCanvasObject}
               nodeLabel={nodeLabel}
-              linkColor={linkColor}
-              linkWidth={linkWidth}
+              linkColor={linkColor as (link: unknown) => string}
+              linkWidth={linkWidth as (link: unknown) => number}
               linkCurvature={0.15}
               linkDirectionalParticles={0}
               onNodeClick={onNodeClick}
