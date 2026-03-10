@@ -253,7 +253,7 @@ export function MetricsPage() {
                       <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#6b7280' }} width={32} />
                       <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#6b7280' }} width={32} />
                       <Tooltip
-                        content={<ChartTooltipContent formatter={(v) => v.toLocaleString()} />}
+                        content={<ChartTooltipContent formatter={(v: unknown) => (typeof v === 'number' ? v.toLocaleString() : String(v ?? ''))} />}
                         labelFormatter={(v) => format(parseISO(v), 'd MMM yyyy', { locale: es })}
                       />
                       <Area
@@ -442,9 +442,11 @@ export function MetricsPage() {
                     <ResponsiveContainer width="100%" height={140}>
                       <PieChart>
                         <Pie data={MOCK_METRICS.attack.severitySplit} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={36} outerRadius={56} paddingAngle={2}>
-                          {(entry, i) => <Cell key={i} fill={entry.fill} />}
+                          {MOCK_METRICS.attack.severitySplit.map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} />
+                          ))}
                         </Pie>
-                        <Tooltip formatter={(v: number) => v} />
+                        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v : String(v ?? ''))} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -453,9 +455,11 @@ export function MetricsPage() {
                     <ResponsiveContainer width="100%" height={140}>
                       <PieChart>
                         <Pie data={MOCK_METRICS.attack.decisionSplit} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={36} outerRadius={56} paddingAngle={2}>
-                          {(entry, i) => <Cell key={i} fill={entry.fill} />}
+                          {MOCK_METRICS.attack.decisionSplit.map((entry, i) => (
+                            <Cell key={i} fill={entry.fill} />
+                          ))}
                         </Pie>
-                        <Tooltip formatter={(v: number) => `${v}%`} />
+                        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? `${v}%` : String(v ?? ''))} />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -488,7 +492,7 @@ export function MetricsPage() {
                           <Cell fill={palette.chart} />
                           <Cell fill="#e5e7eb" />
                         </Pie>
-                        <Tooltip formatter={(v: number) => `${v}%`} />
+                        <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? `${v}%` : String(v ?? ''))} />
                       </PieChart>
                     </ResponsiveContainer>
                     <span className="absolute text-2xl font-semibold text-gray-900">
@@ -504,7 +508,7 @@ export function MetricsPage() {
                     <BarChart data={MOCK_METRICS.authentication.authMethodMix} margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
                       <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} width={36} />
-                      <Tooltip formatter={(v: number) => `${v}%`} />
+                      <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? `${v}%` : String(v ?? ''))} />
                       <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                         {MOCK_METRICS.authentication.authMethodMix.map((entry, i) => (
                           <Cell key={i} fill={entry.fill} />
@@ -526,7 +530,7 @@ export function MetricsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                       <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} width={36} domain={['auto', 'auto']} />
-                      <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: number) => v.toFixed(1)} />
+                      <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: unknown) => (typeof v === 'number' ? v.toFixed(1) : String(v ?? ''))} />
                       <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -573,7 +577,7 @@ export function MetricsPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                       <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} width={36} tickFormatter={(v) => `${v} min`} />
-                      <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: number) => `${v} min`} />
+                      <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: unknown) => (typeof v === 'number' ? `${v} min` : String(v ?? ''))} />
                       <Area type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} fill="url(#opsTime)" />
                     </AreaChart>
                   </ResponsiveContainer>
