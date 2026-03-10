@@ -59,15 +59,18 @@ function OverviewKpiCard({
   sparkline: number[]
   microcopy?: string
 }) {
-  const maxSpark = Math.max(...sparkline, 1)
-  const sparkPath = sparkline
-    .map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i / Math.max(sparkline.length - 1, 1)) * 100} ${100 - (v / maxSpark) * 80}`)
-    .join(' ')
+  const arr = sparkline
+  const maxSpark = Math.max(...arr, 1)
+  const len = arr.length
+  const points = arr.map((v, i) => ({ x: (i / Math.max(len - 1, 1)) * 100, y: 100 - (v / maxSpark) * 85 }))
+  const sparkPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
   const t = trend ?? (delta != null ? (delta >= 0 ? 'up' : 'down') : 'neutral')
+  const tooltipText = microcopy ? `${label} · ${microcopy}` : label
   return (
     <div
       className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
       style={{ borderLeftWidth: 3, borderLeftColor: ACCENT.primary }}
+      title={tooltipText}
     >
       <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
@@ -86,16 +89,17 @@ function OverviewKpiCard({
         )}
       </div>
       {microcopy && <p className="mt-0.5 text-xs text-gray-500">{microcopy}</p>}
-      <div className="mt-3 h-8 w-full">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
+      <div className="mt-3 h-9 w-full" title={tooltipText}>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
           <path
             d={sparkPath}
             fill="none"
             stroke={ACCENT.primary}
-            strokeWidth="8"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
+            opacity={0.9}
           />
         </svg>
       </div>
@@ -114,18 +118,18 @@ export function OverviewPage() {
   const topSignals = getTopTriggeredSignalsOverview(8)
 
   const kpiConfig = [
-    { label: 'Total eventos', value: kpis.totalEvents, delta: kpis.totalEventsDelta, trend: 'up' as Trend, sparkline: eventsByDay.map((d) => d.count), microcopy: 'vs período anterior' },
-    { label: 'Tasa alto riesgo %', value: kpis.highRiskRate.toFixed(1), delta: kpis.highRiskRateDelta, trend: (kpis.highRiskRateDelta >= 0 ? 'up' : 'down') as Trend, sparkline: eventsByDay.map((d) => d.count ? (d.highRisk / d.count) * 100 : 0), microcopy: 'eventos con score ≥ 65' },
+    { label: 'Total ATO events', value: kpis.totalEvents, delta: kpis.totalEventsDelta, trend: 'up' as Trend, sparkline: eventsByDay.map((d) => d.count), microcopy: 'vs período anterior' },
+    { label: 'High risk rate', value: kpis.highRiskRate.toFixed(1), delta: kpis.highRiskRateDelta, trend: (kpis.highRiskRateDelta >= 0 ? 'up' : 'down') as Trend, sparkline: eventsByDay.map((d) => d.count ? (d.highRisk / d.count) * 100 : 0), microcopy: 'eventos con score ≥ 65' },
+    { label: 'MFA challenge rate', value: (kpis.mfaChallengeRate ?? 0).toFixed(1), sparkline: eventsByDay.length ? eventsByDay.map(() => kpis.mfaChallengeRate ?? 0) : [kpis.mfaChallengeRate ?? 0], trend: 'neutral' as Trend, microcopy: 'desafíos MFA vs logins' },
+    { label: 'Passkey adoption', value: (kpis.passkeyAdoptionRate ?? 0).toFixed(1), sparkline: eventsByDay.length ? eventsByDay.map((_, i) => (kpis.passkeyAdoptionRate ?? 0) + i * 0.5) : [kpis.passkeyAdoptionRate ?? 0], trend: 'up' as Trend, microcopy: '% de autenticación con passkey' },
+    { label: 'Reused device rate', value: (kpis.reusedDeviceRate ?? 0).toFixed(1), sparkline: eventsByDay.map(() => kpis.reusedDeviceRate ?? 0), trend: 'neutral' as Trend, microcopy: 'mismo dispositivo en varios usuarios' },
+    { label: 'Suspicious clusters', value: kpis.suspiciousClustersCount ?? 0, sparkline: [kpis.suspiciousClustersCount ?? 0, (kpis.suspiciousClustersCount ?? 0) - 1, kpis.suspiciousClustersCount ?? 0], trend: 'neutral' as Trend, microcopy: 'clusters de identidad detectados' },
     { label: 'Tasa bloqueo %', value: kpis.blockedRate.toFixed(1), delta: kpis.blockedRateDelta, trend: 'neutral' as Trend, sparkline: eventsByDay.length ? eventsByDay.map(() => kpis.blockedRate) : [kpis.blockedRate], microcopy: 'decisión BLOCK' },
     { label: 'Tasa challenge %', value: kpis.challengeRate.toFixed(1), delta: kpis.challengeRateDelta, trend: 'up' as Trend, sparkline: eventsByDay.length ? eventsByDay.map(() => kpis.challengeRate) : [kpis.challengeRate] },
     { label: 'Usuarios bloqueados', value: kpis.blockedUsersCount ?? 0, sparkline: [kpis.blockedUsersCount ?? 0], trend: 'neutral' as Trend },
-    { label: 'MFA challenge %', value: (kpis.mfaChallengeRate ?? 0).toFixed(1), sparkline: eventsByDay.length ? eventsByDay.map(() => kpis.mfaChallengeRate ?? 0) : [kpis.mfaChallengeRate ?? 0], trend: 'neutral' as Trend },
     { label: 'MFA success %', value: (kpis.mfaSuccessRate ?? 0).toFixed(1), sparkline: eventsByDay.length ? eventsByDay.map(() => kpis.mfaSuccessRate ?? 0) : [kpis.mfaSuccessRate ?? 0], trend: 'neutral' as Trend },
-    { label: 'Passkey adoption %', value: (kpis.passkeyAdoptionRate ?? 0).toFixed(1), sparkline: eventsByDay.length ? eventsByDay.map((_, i) => (kpis.passkeyAdoptionRate ?? 0) + i * 0.5) : [kpis.passkeyAdoptionRate ?? 0], trend: 'up' as Trend },
-    { label: 'Device reuse %', value: (kpis.reusedDeviceRate ?? 0).toFixed(1), sparkline: eventsByDay.map(() => kpis.reusedDeviceRate ?? 0), trend: 'neutral' as Trend },
     { label: 'En observación', value: kpis.usersUnderWatch, delta: kpis.usersUnderWatchDelta, trend: (kpis.usersUnderWatchDelta != null && kpis.usersUnderWatchDelta < 0 ? 'down' : 'up') as Trend, sparkline: eventsByDay.length ? eventsByDay.map((_, i) => Math.max(0, (kpis.usersUnderWatch ?? 0) - i * 2)) : [kpis.usersUnderWatch], microcopy: 'usuarios bajo revisión' },
     { label: 'Usuarios únicos', value: kpis.uniqueUsersAffected, delta: kpis.uniqueUsersAffectedDelta, trend: 'up' as Trend, sparkline: eventsByDay.map((d) => d.count).slice(-7), microcopy: 'afectados por eventos' },
-    { label: 'Clusters sospechosos', value: kpis.suspiciousClustersCount ?? 0, sparkline: [kpis.suspiciousClustersCount ?? 0, (kpis.suspiciousClustersCount ?? 0) - 1, kpis.suspiciousClustersCount ?? 0], trend: 'neutral' as Trend },
   ]
 
   return (
@@ -202,12 +206,12 @@ export function OverviewPage() {
                     <stop offset="100%" stopColor={ACCENT.chartSecondary} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={{ stroke: '#e5e7eb' }} />
                 <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} width={36} />
                 <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM yyyy', { locale: es })} contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                <Area type="monotone" dataKey="count" name="Eventos" stroke={ACCENT.chart} fill="url(#overviewFillCount)" strokeWidth={2} />
-                <Area type="monotone" dataKey="highRisk" name="Alto riesgo" stroke={ACCENT.chartSecondary} fill="url(#overviewFillHighRisk)" strokeWidth={2} />
+                <Area type="monotone" dataKey="count" name="Eventos" stroke={ACCENT.chart} fill="url(#overviewFillCount)" strokeWidth={1.8} />
+                <Area type="monotone" dataKey="highRisk" name="Alto riesgo" stroke={ACCENT.chartSecondary} fill="url(#overviewFillHighRisk)" strokeWidth={1.8} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -249,7 +253,7 @@ export function OverviewPage() {
           <div className="mt-3 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={eventsByType} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" horizontal={false} />
+                <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <YAxis type="category" dataKey="type" width={90} tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }} />
@@ -264,7 +268,7 @@ export function OverviewPage() {
           <div className="mt-3 h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topDevices} layout="vertical" margin={{ top: 0, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" horizontal={false} />
+                <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: '#6b7280' }} />
                 <YAxis type="category" dataKey="deviceId" width={100} tick={{ fontSize: 10, fill: '#6b7280' }} />
                 <Tooltip formatter={(v: unknown) => (typeof v === 'number' ? v : Number(v))} />

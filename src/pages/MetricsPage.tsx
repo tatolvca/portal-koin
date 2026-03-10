@@ -42,14 +42,17 @@ const TAB_PALETTE: Record<TabId, { primary: string; light: string; chart: string
 }
 
 function KpiCard({ kpi, accentColor }: { kpi: KpiCardData; accentColor: string }) {
-  const maxSpark = Math.max(...kpi.sparkline, 1)
-  const sparkPath = kpi.sparkline
-    .map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i / Math.max(kpi.sparkline.length - 1, 1)) * 100} ${100 - (v / maxSpark) * 80}`)
-    .join(' ')
+  const arr = kpi.sparkline
+  const maxSpark = Math.max(...arr, 1)
+  const len = arr.length
+  const points = arr.map((v, i) => ({ x: (i / Math.max(len - 1, 1)) * 100, y: 100 - (v / maxSpark) * 85 }))
+  const sparkPath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+  const tooltipText = [kpi.label, kpi.microcopy].filter(Boolean).join(' · ')
   return (
     <div
       className="rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
       style={{ borderLeftWidth: 3, borderLeftColor: accentColor }}
+      title={tooltipText}
     >
       <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{kpi.label}</p>
       <div className="mt-1 flex items-baseline justify-between gap-2">
@@ -68,22 +71,17 @@ function KpiCard({ kpi, accentColor }: { kpi: KpiCardData; accentColor: string }
         </span>
       </div>
       {kpi.microcopy && <p className="mt-0.5 text-xs text-gray-500">{kpi.microcopy}</p>}
-      <div className="mt-3 h-8 w-full">
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full">
-          <defs>
-            <linearGradient id={`spark-${kpi.label.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={accentColor} stopOpacity={0.4} />
-              <stop offset="100%" stopColor={accentColor} stopOpacity={0} />
-            </linearGradient>
-          </defs>
+      <div className="mt-3 h-9 w-full" title={tooltipText}>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="h-full w-full" aria-hidden>
           <path
             d={sparkPath}
             fill="none"
             stroke={accentColor}
-            strokeWidth="8"
+            strokeWidth="1.8"
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
+            opacity={0.9}
           />
         </svg>
       </div>
@@ -243,7 +241,7 @@ export function MetricsPage() {
                           <stop offset="100%" stopColor={palette.chart} stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })}
@@ -261,7 +259,7 @@ export function MetricsPage() {
                         type="monotone"
                         dataKey="value"
                         stroke={palette.chart}
-                        strokeWidth={2}
+                        strokeWidth={1.8}
                         fill="url(#heroAttack)"
                       />
                       <Line
@@ -270,7 +268,7 @@ export function MetricsPage() {
                         dataKey="value"
                         data={sliceSeries(MOCK_METRICS.attack.highRiskRate.data)}
                         stroke={palette.chartSecondary}
-                        strokeWidth={2}
+                        strokeWidth={1.8}
                         dot={false}
                         name="High risk %"
                       />
@@ -302,7 +300,7 @@ export function MetricsPage() {
                       }))}
                       margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })}
@@ -318,8 +316,8 @@ export function MetricsPage() {
                           />
                         )}
                       />
-                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} dot={false} name="Challenge rate %" />
-                      <Line type="monotone" dataKey="success" stroke={palette.chartSecondary} strokeWidth={2} dot={false} name="Success rate %" />
+                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={1.8} dot={false} name="Challenge rate %" />
+                      <Line type="monotone" dataKey="success" stroke={palette.chartSecondary} strokeWidth={1.8} dot={false} name="Success rate %" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -340,7 +338,7 @@ export function MetricsPage() {
                       }))}
                       margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })}
@@ -369,7 +367,7 @@ export function MetricsPage() {
                       }))}
                       margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })}
@@ -377,8 +375,8 @@ export function MetricsPage() {
                       />
                       <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} width={36} />
                       <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} />
-                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} dot={false} name="Alertas" />
-                      <Line type="monotone" dataKey="queue" stroke={palette.chartSecondary} strokeWidth={2} dot={false} name="Cola revisión" />
+                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={1.8} dot={false} name="Alertas" />
+                      <Line type="monotone" dataKey="queue" stroke={palette.chartSecondary} strokeWidth={1.8} dot={false} name="Cola revisión" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -397,7 +395,7 @@ export function MetricsPage() {
                       }))}
                       margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })}
@@ -406,8 +404,8 @@ export function MetricsPage() {
                       <YAxis yAxisId="left" tick={{ fontSize: 11, fill: '#6b7280' }} width={36} />
                       <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: '#6b7280' }} width={36} tickFormatter={(v) => `${v}%`} />
                       <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} />
-                      <Line yAxisId="left" type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} dot={false} name="Cluster growth" />
-                      <Line yAxisId="right" type="monotone" dataKey="shared" stroke={palette.chartSecondary} strokeWidth={2} dot={false} name="Shared identity %" />
+                      <Line yAxisId="left" type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={1.8} dot={false} name="Cluster growth" />
+                      <Line yAxisId="right" type="monotone" dataKey="shared" stroke={palette.chartSecondary} strokeWidth={1.8} dot={false} name="Shared identity %" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -527,11 +525,11 @@ export function MetricsPage() {
                 <div className="mt-3 h-56">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={sliceSeries(MOCK_METRICS.userIdentity.linkedIdentitiesPerUser.data)} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} width={36} domain={['auto', 'auto']} />
                       <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: unknown) => (typeof v === 'number' ? v.toFixed(1) : String(v ?? ''))} />
-                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={1.8} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -574,11 +572,11 @@ export function MetricsPage() {
                           <stop offset="100%" stopColor={palette.chart} stopOpacity={0} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                      <CartesianGrid strokeDasharray="2 2" stroke="#f1f5f9" vertical={false} />
                       <XAxis dataKey="date" tickFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} tick={{ fontSize: 11 }} />
                       <YAxis tick={{ fontSize: 11 }} width={36} tickFormatter={(v) => `${v} min`} />
                       <Tooltip labelFormatter={(v) => format(parseISO(v), 'd MMM', { locale: es })} formatter={(v: unknown) => (typeof v === 'number' ? `${v} min` : String(v ?? ''))} />
-                      <Area type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={2} fill="url(#opsTime)" />
+                      <Area type="monotone" dataKey="value" stroke={palette.chart} strokeWidth={1.8} fill="url(#opsTime)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>

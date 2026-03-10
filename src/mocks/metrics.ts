@@ -24,6 +24,9 @@ export const MOCK_METRICS = {
     repeatedDeviceRate: generateSeries("Repeated device rate %", 18, 5, 14, 0.5),
     suspiciousClusters: generateSeries("Suspicious clusters", 8, 2, 14, 0.2),
     uniqueAttackedUsers: generateSeries("Unique attacked users", 420, 80, 14, 3),
+    loginAttackRate: generateSeries("Login attack rate %", 8, 2, 14, 0.3),
+    signupAttackRate: generateSeries("Signup attack rate %", 14, 4, 14, 0.5),
+    passwordResetAnomalyRate: generateSeries("Password reset anomaly rate %", 6, 2, 14, 0.2),
     eventTypeBreakdown: [
       { name: "LOGIN", value: 520, fill: "#6366f1" },
       { name: "SIGN_UP", value: 280, fill: "#8b5cf6" },
@@ -164,6 +167,9 @@ export const METRICS_KPIS: Record<string, KpiCardData[]> = {
     { label: "Reused device rate", value: `${lastValue(A.repeatedDeviceRate).toFixed(1)}%`, delta: lastValue(A.repeatedDeviceRate) - prevValue(A.repeatedDeviceRate), trend: "up", sparkline: spark(A.repeatedDeviceRate) },
     { label: "Suspicious clusters", value: lastValue(A.suspiciousClusters), delta: lastValue(A.suspiciousClusters) - prevValue(A.suspiciousClusters), trend: "neutral", sparkline: spark(A.suspiciousClusters) },
     { label: "Unique attacked users", value: lastValue(A.uniqueAttackedUsers), delta: deltaPct(lastValue(A.uniqueAttackedUsers), prevValue(A.uniqueAttackedUsers)), trend: "up", sparkline: spark(A.uniqueAttackedUsers) },
+    { label: "Login attack rate", value: `${lastValue(A.loginAttackRate).toFixed(1)}%`, delta: lastValue(A.loginAttackRate) - prevValue(A.loginAttackRate), trend: "up", sparkline: spark(A.loginAttackRate), microcopy: "Logins considerados de alto riesgo." },
+    { label: "Signup attack rate", value: `${lastValue(A.signupAttackRate).toFixed(1)}%`, delta: lastValue(A.signupAttackRate) - prevValue(A.signupAttackRate), trend: "up", sparkline: spark(A.signupAttackRate), microcopy: "SIGN_UP con señales sospechosas." },
+    { label: "Password reset anomaly rate", value: `${lastValue(A.passwordResetAnomalyRate).toFixed(1)}%`, delta: lastValue(A.passwordResetAnomalyRate) - prevValue(A.passwordResetAnomalyRate), trend: "neutral", sparkline: spark(A.passwordResetAnomalyRate), microcopy: "RESET_PASSWORD con señales de riesgo." },
   ],
   Autenticación: [
     { label: "MFA challenge rate", value: `${lastValue(Auth.mfaChallengeRate).toFixed(1)}%`, delta: lastValue(Auth.mfaChallengeRate) - prevValue(Auth.mfaChallengeRate), trend: "up", sparkline: spark(Auth.mfaChallengeRate) },
