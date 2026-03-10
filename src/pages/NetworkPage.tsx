@@ -173,7 +173,8 @@ export function NetworkPage() {
 
   const nodeCanvasObject = useCallback(
     (node: { id?: string | number; x?: number; y?: number; val?: number; color?: string; type?: string; label?: string }, ctx: CanvasRenderingContext2D, globalScale: number) => {
-      const label = (node.label?.length ?? 0) > 12 ? `${node.label.slice(0, 12)}…` : (node.label ?? String(node.id ?? ''))
+      const rawLabel = node.label ?? String(node.id ?? '')
+      const label = rawLabel.length > 12 ? `${rawLabel.slice(0, 12)}…` : rawLabel
       const r = Math.max(4, (node.val ?? 14) / (globalScale > 4 ? globalScale / 4 : 1))
       const opacity = nodeOpacity(node)
       ctx.globalAlpha = opacity
@@ -384,7 +385,7 @@ export function NetworkPage() {
         <div className="min-h-[560px] flex-1 overflow-hidden rounded-untitled-xl border border-gray-200 bg-white shadow-untitled-sm">
           <Suspense fallback={<div className="flex min-h-[560px] items-center justify-center text-gray-500">Cargando grafo…</div>}>
             <ForceGraph2D
-              ref={fgRef as React.RefObject<unknown>}
+              ref={fgRef as React.MutableRefObject<undefined>}
               graphData={graphData}
               nodeVal={((n: { val?: number }) => n?.val ?? 14) as (n: unknown) => number}
               nodeColor={nodeColor}
